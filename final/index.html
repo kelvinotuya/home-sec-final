@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Hoem Secretary App by Kelvin Otuya</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="//code.jquery.com/mobile/1.5.0-alpha.1/jquery.mobile-1.5.0-alpha.1.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="main.css"
+    />
+    <script src="//code.jquery.com/jquery-3.2.1.min.js"></script>
+    <script>
+      //init state
+      var state = {
+        events: [],
+        event: {},
+        jobs: []
+      };
+
+      function setUserLoggedIn(user) {
+        localStorage.setItem("user", JSON.stringify(user));
+        console.log("saved on localStorage");
+      }
+
+      function getUserLoggedIn() {
+        if (localStorage.getItem("user")) {
+          return JSON.parse(localStorage.getItem("user"));
+        }
+        return null;
+      }
+
+      // Optional: clear localStorage
+      function clearUserData() {
+        //localStorage.removeItem("user");
+        localStorage.clear();
+      }
+
+      function setAuthState(profile) {
+        if (profile) {
+          state.authenticated = true;
+          state.profile = profile;
+        } else {
+          state.authenticated = false;
+          if (state.profile) {
+            delete state.profile;
+          }
+        }
+      }
+
+      function initLogin() {
+        var profile = getUserLoggedIn();
+        if (profile) {
+          /*firebase
+    .auth()
+    .updateCurrentUser(profile);*/
+          setAuthState(profile);
+        } else {
+          setAuthState();
+        }
+      }
+
+      $(document).on("mobileinit", function() {
+        $.mobile.pushStateEnabled = false;
+
+        // We want popups to cover the page behind them with a dark background
+        //$.mobile.popup.prototype.options.overlayTheme = "b";
+        initLogin();
+      });
+    </script>
+    <script src="//code.jquery.com/mobile/1.5.0-alpha.1/jquery.mobile-1.5.0-alpha.1.min.js"></script>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/6.3.3/firebase-database.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#config-web-app -->
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyBXGlwkHa9pa4YMCoWSZU0O1V3R8rPu_K4",
+        authDomain: "kevchecklist.firebaseapp.com",
+        databaseURL: "https://kevchecklist.firebaseio.com",
+        projectId: "kevchecklist",
+        storageBucket: "",
+        messagingSenderId: "867711294869",
+        appId: "1:867711294869:web:3c5ed28574429eef"
+      };
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+    </script>
+    <script src="app.js"></script>
+  </head>
+
+  <body>
+    <div data-role="page" id="login">
+      <div data-role="header">
+        <h2>Home Secretary</h2>
+      </div>
+      <div role="main" class="ui-content">
+        <div class="ui-corner-all custom-corners">
+          <div class="ui-bar ui-bar-a">
+            <h3>Login Details</h3>
+          </div>
+          <div class="ui-body ui-body-a">
+            <form id="loginForm">
+              <input
+                type="email"
+                name="email"
+                id="username"
+                placeholder="User Email"
+                value="georgicng20@gmail.com"
+              />
+              <input
+                type="password"
+                name="password"
+                id="pass"
+                placeholder="Password"
+                value="hitect"
+              />
+              <input
+                type="submit"
+                class="ui-btn ui-btn-icon-left ui-icon-arrow-r"
+                value="Login"
+              />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div data-role="toolbar" data-type="footer" style="overflow:hidden;">
+        <div data-role="navbar">
+          <ul>
+            <li><a href="#login" class="ui-button-active">Login</a></li>
+            <li><a href="#register">Register</a></li>
+          </ul>
+        </div>
+        <!-- /navbar -->
+      </div>
+      <!-- /footer -->
+    </div>
+
+    <div data-role="page" id="register">
+      <div data-role="header">
+        <h2>Home Secretary</h2>
+      </div>
+      <div role="main" class="ui-content">
+        <div class="ui-corner-all custom-corners">
+          <div class="ui-bar ui-bar-a">
+            <h3>Register Account</h3>
+          </div>
+          <div class="ui-body ui-body-a">
+            <form id="registerForm">
+              <input
+                type="text"
+                name="name"
+                id="name"
+                placeholder="Your name.."
+              />
+              <input
+                type="email"
+                name="email"
+                id="email"
+                placeholder="Your email.."
+              />
+              <input
+                type="password"
+                name="password"
+                id="password"
+                placeholder="Password"
+              />
+              <input
+                type="password"
+                name="password2"
+                id="password2"
+                placeholder="Confirm Password"
+              />
+              <input
+                type="submit"
+                class="ui-btn ui-btn-icon-left ui-icon-arrow-r"
+                value="Register"
+              />
+            </form>
+          </div>
+        </div>
+      </div>
+      <div data-role="toolbar" data-type="footer" style="overflow:hidden;">
+        <div data-role="navbar">
+          <ul>
+            <li><a href="#login">Login</a></li>
+            <li><a href="#register" class="ui-button-active">Register</a></li>
+          </ul>
+        </div>
+        <!-- /navbar -->
+      </div>
+      <!-- /footer -->
+    </div>
+
+    <div data-role="page" id="list">
+      <div data-role="toolbar" data-type="header" style="overflow:hidden;">
+        <h1>Event List</h1>
+        <div data-role="navbar">
+          <ul>
+            <li>
+              <a
+                href="#popupEvent"
+                data-rel="popup"
+                data-position-to="window"
+                class="ui-btn ui-corner-all ui-shadow ui-btn-inline ui-icon-check ui-btn-icon-left ui-btn-a"
+                data-transition="pop"
+                >New Event</a
+              >
+              <div
+                data-role="popup"
+                id="popupEvent"
+                data-theme="a"
+                class="ui-corner-all"
+              >
+                <div class="ui-corner-all custom-corners">
+                  <div class="ui-bar ui-bar-a">
+                    <h3>Add Event</h3>
+                  </div>
+                  <div class="ui-body ui-body-a">
+                    <form id="listForm">
+                      <input
+                        type="text"
+                        placeholder="Type a name..."
+                        class="newlist"
+                      />
+                      <textarea
+                        placeholder="what is it for..."
+                        id="description"
+                        class="desc"
+                      ></textarea>
+                      <input type="date" id="start" value="" />
+                      <input type="time" id="time" />
+                      <input
+                        type="submit"
+                        class="ui-btn ui-corner-all ui-shadow ui-btn-b ui-btn-icon-left ui-icon-check"
+                        value="Add Event"
+                      />
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+          </ul>
+        </div>
+        <!-- /navbar -->
+      </div>
+      <div role="main" class="ui-content">
+        <div class="ui-corner-all custom-corners list-checklist">
+          <div class="ui-bar ui-bar-a">
+            <h3>Events</h3>
+          </div>
+          <div class="ui-body ui-body-a">
+            <form class="ui-filterable">
+              <input id="filterEvents" data-type="search" placeholder="type to filter list" />
+            </form>
+            <ul
+              data-role="listview"
+              data-filter="true"
+              data-input="#filterEvents"
+              class="checklist touch" 
+              data-icon="false" 
+              data-split-icon="delete"
+            ></ul>
+          </div>
+        </div>
+        <div class="ui-corner-all custom-corners empty-checklist">
+          <div class="ui-bar ui-bar-a">
+            <h3>No Event</h3>
+          </div>
+          <div class="ui-body ui-body-a">
+            <p class="message">Let's start by creating an event</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-role="page" id="tasks">
+      <div data-role="toolbar" data-type="header" style="overflow:hidden;">
+        <h1 id="event-name"><span contenteditable="true">Event</span></h1>
+        <div data-role="navbar">
+          <ul>
+            <li>
+              <a
+                href="#list"
+                data-transition="fade"
+                class="ui-btn ui-btn-icon-left ui-icon-arrow-l"
+                >Back</a
+              >
+            </li>
+            <li><a href="#">Profile</a></li>
+            <li><a href="#" onclick="logout()">Logout</a></li>
+          </ul>
+        </div>
+        <!-- /navbar -->
+      </div>
+      <!-- /header -->
+      <div role="main" class="ui-content">
+        <div data-role="tabs" id="tabs">
+          <div data-role="navbar">
+            <ul>
+              <li><a href="#members" data-ajax="false">Members</a></li>
+              <li><a href="#jobs" data-ajax="false">Jobs</a></li>
+              <li><a href="#dunno" data-ajax="false">Dunno</a></li>
+              <li><a href="#ledger" data-ajax="false">Ledger</a></li>
+            </ul>
+          </div>
+          <div id="members">
+            <div class="add-user-input">
+              <input type="text" id="searchField" placeholder="Enter name to Search" />
+              <ul id="suggestions" data-role="listview" data-inset="true"></ul>
+            </div>
+            <div class="user-list-wrapper">
+              <ul data-role="listview" data-inset="true" class="user-list touch" data-icon="false" data-split-icon="delete">
+              </ul>
+            </div>
+            <div class="empty-user-list">
+              <p>You have not shared this event with anyone</p>
+            </div>
+            <div class="invite"><a href="mailto:friend@Mail.com?subject=Invite to share Event Schedule&body=You are hereby invited to join and share in list.">Invite Friend</a>
+            </div>
+          </div>
+          <div id="jobs" class="ui-body-d ui-content">
+            <a
+              href="#popupJob"
+              data-rel="popup"
+              class="ui-btn ui-corner-all ui-shadow ui-btn-inline"
+              data-transition="pop"
+              >New Job</a
+            >
+            <div data-role="popup" id="popupJob">
+              <div class="ui-corner-all custom-corners">
+                <div class="ui-bar ui-bar-a">
+                  <h3>Add Job</h3>
+                </div>
+                <div class="ui-body ui-body-a">
+                  <form id="taskForm">
+                    <input
+                      type="text"
+                      placeholder="Type a task..."
+                      class="newTask"
+                    />
+                    <input
+                      type="submit"
+                      class="ui-btn ui-btn-icon-left ui-icon-arrow-r"
+                      value="Add Job"
+                    />
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div class="tasks">
+              <div class="ui-corner-all custom-corners">
+                <div class="ui-bar ui-bar-a">
+                  <h3>Jobs</h3>
+                </div>
+                <div class="ui-body ui-body-a">
+                  <div class="job-list">
+                  <form class="ui-filterable">
+                    <input id="filterJobs" data-type="search" placeholder="type to filter list" />
+                  </form>
+                  <ul
+                    data-role="listview"
+                    data-filter="true"
+                    data-input="#filterJobs"
+                    class="todos touch" 
+                    data-icon="false" 
+                    data-split-icon="delete"
+                  ></ul>
+                </div>
+                  <div class="note">
+                    <input
+                      type="button"
+                      value="Remove complete tasks"
+                      class="delete button"
+                    />
+                    <p>
+                      Note:
+                      <small
+                        >Double click in white space to edit job items</small
+                      >
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="ui-corner-all custom-corners empty-todos">
+              <!--if all has been done say you're a hero else if nothing on list say add an item-->
+              <div class="ui-bar ui-bar-a">
+                <h3>Nothing Here</h3>
+              </div>
+              <div class="ui-body ui-body-a">
+                <p class="message">Don't be lazy, add a job</p>
+              </div>
+            </div>
+          </div>
+          <div id="dunno">
+          </div>
+          <div id="ledger">
+          </div>
+        </div>
+        <!-- /footer -->
+      </div>
+    </div>
+  </body>
+</html>
